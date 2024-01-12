@@ -11,12 +11,22 @@ const App = () => {
 
   useEffect(() => {
     socket.on('message', (message) => {
-      setMessages((messages) => [...messages, message]);
+      if(messages.length > 0) {
+        const lastMessageGroup = [...messages[messages.length - 1]]
+        if(lastMessageGroup[lastMessageGroup.length - 1].user === message.user) {
+          lastMessageGroup.push(message)
+          setMessages([...messages.slice(0, -1), lastMessageGroup])
+        } else {
+          setMessages([...messages, [message]])
+        }
+      } else {
+        setMessages([[message]])
+      }
       if (messagesContainerRef.current) {
         messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
       }
     });
-  }, []);
+  }, [messages]);
 
   const handleSubmit = (e) => {
       e.preventDefault();
@@ -25,20 +35,25 @@ const App = () => {
         setInputMessage('');
       }
   };
+
   return (
   <div class="flex-1 p:2 sm:p-6 justify-between flex flex-col h-screen">
     <div id="messages" ref={messagesContainerRef} class="flex flex-col space-y-4 p-3 overflow-y-auto scrollbar-thumb-blue scrollbar-thumb-rounded scrollbar-track-blue-lighter scrollbar-w-2 scrolling-touch">
     { 
-      messages.map((message, index) => (
+      messages.map((messageGroup, index) => 
         <div key={index} class="chat-message">
-          <div class={`flex items-end ${message.user === socket.id && 'justify-end' }`}>
-            <div class={`flex flex-col space-y-2 text-xs max-w-xs mx-2 order-2 ${message.user === socket.id ? 'items-end' : 'items-start'}`}>
-                <div><span class={`px-4 py-2 rounded-lg inline-block ${message.user === socket.id ? 'rounded-br-none bg-blue-600 text-white' : 'rounded-bl-none bg-gray-300 text-gray-600'}`}>{message.message}</span></div>
+          <div class={`flex items-end ${messageGroup[0].user === socket.id && 'justify-end' }`}>
+            <div class={`flex flex-col space-y-2 text-xs max-w-xs mx-2 order-2 ${messageGroup[0].user === socket.id ? 'items-end' : 'items-start'}`}>
+                {
+                  messageGroup.map((message, messageIndex) => 
+                    <div><span class={`px-4 py-2 rounded-lg inline-block ${message.user === socket.id ? 'bg-blue-600 text-white' : 'bg-gray-300 text-gray-600'} ${messageIndex === messageGroup.length - 1 && ( message.user === socket.id ? 'rounded-br-none' : 'rounded-bl-none' )}`}>{message.message}</span></div>
+                  )
+                }
             </div>
-            <img src="./default_profile.png" alt="My profile" class={`w-6 h-6 rounded-full ${message.user === socket.id ? 'order-2' : 'order-1'}`} />
+            {true && ( <img src="./default_profile.png" alt="My profile" class={`w-6 h-6 rounded-full ${messageGroup[0].user === socket.id ? 'order-2' : 'order-1'}`} /> )}
           </div>
         </div>
-    ))}
+    )}
     </div>
     <form onSubmit={handleSubmit}>
     <div class="border-t-2 border-gray-200 px-4 pt-4 mb-2 sm:mb-0">
