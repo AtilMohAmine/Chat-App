@@ -1,13 +1,23 @@
 import React, { useEffect, useRef, useState } from 'react'
 import io from 'socket.io-client';
 import './App.css';
+import Typing from './components/Typing';
 
-const socket = io('http://192.168.1.9:5000');
+const socket = io('http://localhost:5000');
 
 const App = () => {  
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
+  const [typingUser, setTypingUser] = useState('')
+  const [typingTimeout, setTypingTimeout] = useState(null);
   const messagesContainerRef = useRef(null);
+  const messageInputRef = useRef(null);
+
+  useEffect(() => {
+    messageInputRef.current.addEventListener('keypress', (e) => {
+      socket.emit('activity', socket.id);
+    });
+  }, []);
 
   useEffect(() => {
     socket.on('message', (message) => {
@@ -27,6 +37,16 @@ const App = () => {
       }
     });
   }, [messages]);
+
+  useEffect(() => {
+    socket.on('activity', (user) => {
+      setTypingUser(user)
+      if (typingTimeout) {
+        clearTimeout(typingTimeout);
+      }
+      setTypingTimeout(setTimeout(() => setTypingUser(''), 3000));
+    });
+  }, [typingTimeout]);
 
   const handleSubmit = (e) => {
       e.preventDefault();
@@ -54,12 +74,20 @@ const App = () => {
           </div>
         </div>
     )}
+    <span className="flex items-center justify-center">
+      {typingUser !== '' && (
+        <>
+          <span>{typingUser} is typing</span>
+          <Typing />
+        </>
+      )}
+    </span>
     </div>
     <form onSubmit={handleSubmit}>
     <div class="border-t-2 border-gray-200 px-4 pt-4 mb-2 sm:mb-0">
       <div class="relative flex">
         
-          <input type="text" value={inputMessage} placeholder="Write your message!" class="w-full focus:outline-none focus:placeholder-gray-400 text-gray-600 placeholder-gray-600 pl-6 bg-gray-200 rounded-md py-3" onChange={(e) => setInputMessage(e.target.value)} />
+          <input type="text" ref={messageInputRef} value={inputMessage} placeholder="Write your message!" class="w-full focus:outline-none focus:placeholder-gray-400 text-gray-600 placeholder-gray-600 pl-6 bg-gray-200 rounded-md py-3" onChange={(e) => setInputMessage(e.target.value)} />
           <div class="absolute right-0 items-center inset-y-0 hidden sm:flex">
             <button type="button" class="inline-flex items-center justify-center rounded-full h-10 w-10 transition duration-500 ease-in-out text-gray-500 hover:bg-gray-300 focus:outline-none">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-6 w-6 text-gray-600">
