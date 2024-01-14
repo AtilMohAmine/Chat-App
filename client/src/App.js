@@ -62,7 +62,17 @@ const App = () => {
     { 
       messages.map((messageGroup, index) => 
         <div key={index} class="chat-message">
-          <div class={`flex items-end ${messageGroup[0].user === socket.id && 'justify-end' }`}>
+          { messageGroup[0].user === 'server'
+            ? (<div class='flex items-end justify-center'>
+                <div class='flex flex-col space-y-2 text-xs max-w-xs items-center'>
+                  {
+                    messageGroup.map((message, messageIndex) => 
+                      <div><span class='px-4 py-2 inline-block text-gray-600'>{message.message}</span></div>
+                    )
+                  }
+                </div>
+              </div>)
+            : (<div class={`flex items-end ${messageGroup[0].user === socket.id && 'justify-end' }`}>
             <div class={`flex flex-col space-y-2 text-xs max-w-xs mx-2 order-2 ${messageGroup[0].user === socket.id ? 'items-end' : 'items-start'}`}>
                 {
                   messageGroup.map((message, messageIndex) => 
@@ -71,7 +81,8 @@ const App = () => {
                 }
             </div>
             {true && ( <img src="./default_profile.png" alt="My profile" class={`w-6 h-6 rounded-full ${messageGroup[0].user === socket.id ? 'order-2' : 'order-1'}`} /> )}
-          </div>
+          </div>)
+          }
         </div>
     )}
     <span className="flex items-center justify-center">
