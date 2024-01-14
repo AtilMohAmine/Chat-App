@@ -75,9 +75,34 @@ const App = () => {
             : (<div class={`flex items-end ${messageGroup[0].user === socket.id && 'justify-end' }`}>
             <div class={`flex flex-col space-y-2 text-xs max-w-xs mx-2 order-2 ${messageGroup[0].user === socket.id ? 'items-end' : 'items-start'}`}>
                 {
-                  messageGroup.map((message, messageIndex) => 
-                    <div><span class={`px-4 py-2 rounded-lg inline-block ${message.user === socket.id ? 'bg-blue-600 text-white' : 'bg-gray-300 text-gray-600'} ${messageIndex === messageGroup.length - 1 && ( message.user === socket.id ? 'rounded-br-none' : 'rounded-bl-none' )}`}>{message.message}</span></div>
-                  )
+                  messageGroup.map((message, messageIndex) => {
+                  
+                  const format = new Date(message.time).getDate() === new Date().getDate() 
+                    ?
+                      {
+                        hour: 'numeric',
+                        minute: 'numeric'
+                      }
+                    :
+                      {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        hour: 'numeric',
+                        minute: 'numeric'
+                      }
+                  const formattedTime = new Intl.DateTimeFormat('default', format).format(new Date(message.time));
+
+                  const previousMessage = messageIndex > 0 ? messageGroup[messageIndex - 1] : null;
+                  const showTime = message.user !== 'server' && (messageIndex === 0 || (previousMessage && new Date(message.time).getMinutes() !== new Date(previousMessage.time).getMinutes()));
+                    
+                  return (
+                    <div key={messageIndex} className={`flex flex-col ${messageGroup[0].user === socket.id ? 'items-end' : 'items-start'}`}>
+                      { showTime && <span class="text-gray-500 text-xxs mx-2 italic">{ formattedTime }</span> }
+                      <span class={`px-4 py-2 rounded-lg inline-block ${message.user === socket.id ? 'bg-blue-600 text-white' : 'bg-gray-300 text-gray-600'} ${messageIndex === messageGroup.length - 1 && ( message.user === socket.id ? 'rounded-br-none' : 'rounded-bl-none' )}`}>{message.message}</span>
+                    </div>
+                    )
+                  })
                 }
             </div>
             {true && ( <img src="./default_profile.png" alt="My profile" class={`w-6 h-6 rounded-full ${messageGroup[0].user === socket.id ? 'order-2' : 'order-1'}`} /> )}
