@@ -1,6 +1,7 @@
 import express from 'express';
 import { Server } from 'socket.io';
 import dotenv from 'dotenv';
+import connectDB from './config/dbConn.js'
 
 const app = express();
 
@@ -10,6 +11,9 @@ const PORT = process.env.PORT || 3000;
 const expressServer = app.listen(PORT, () => {
   console.log(`Listening on port ${PORT}`);
 });
+
+// Connect to MongoDB
+connectDB()
 
 const io = new Server(expressServer, {
   cors: {
