@@ -5,6 +5,7 @@ import connectDB from './config/dbConn.js'
 import registerRouter from './routes/register.js';
 import authRouter from './routes/auth.js'
 import refreshRouter from './routes/refresh.js'
+import logoutRouter from './routes/logout.js'
 
 const app = express();
 
@@ -31,6 +32,7 @@ app.use(express.json());
 app.use('/register', registerRouter)
 app.use('/auth', authRouter)
 app.use('/refresh', refreshRouter)
+app.use('/logout', logoutRouter)
 
 io.on('connection', (socket) => {
   console.log(`User ${socket.id} connected`);
