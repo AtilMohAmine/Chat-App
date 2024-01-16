@@ -3,6 +3,8 @@ import { Server } from 'socket.io';
 import dotenv from 'dotenv';
 import connectDB from './config/dbConn.js'
 import registerRouter from './routes/register.js';
+import authRouter from './routes/auth.js'
+import refreshRouter from './routes/refresh.js'
 
 const app = express();
 
@@ -27,6 +29,8 @@ app.use(express.json());
 
 // Routes
 app.use('/register', registerRouter)
+app.use('/auth', authRouter)
+app.use('/refresh', refreshRouter)
 
 io.on('connection', (socket) => {
   console.log(`User ${socket.id} connected`);

@@ -23,6 +23,7 @@ const userSchema = new Schema({
       type: Date,
       default: Date.now,
     },
+    refreshToken: String
   });
 
 const userModel = mongoose.model('User', userSchema)
