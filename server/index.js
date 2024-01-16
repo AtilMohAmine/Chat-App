@@ -2,6 +2,7 @@ import express from 'express';
 import { Server } from 'socket.io';
 import dotenv from 'dotenv';
 import connectDB from './config/dbConn.js'
+import registerRouter from './routes/register.js';
 
 const app = express();
 
@@ -23,6 +24,9 @@ const io = new Server(expressServer, {
 
 // Middleware
 app.use(express.json());
+
+// Routes
+app.use('/register', registerRouter)
 
 io.on('connection', (socket) => {
   console.log(`User ${socket.id} connected`);
