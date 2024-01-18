@@ -6,6 +6,9 @@ import registerRouter from './routes/register.js';
 import authRouter from './routes/auth.js'
 import refreshRouter from './routes/refresh.js'
 import logoutRouter from './routes/logout.js'
+import cors from 'cors'
+import corsOptions from './config/corsOptions.js'
+import allowedOrigins from './config/allowedOrigins.js';
 
 const app = express();
 
@@ -21,9 +24,12 @@ connectDB()
 
 const io = new Server(expressServer, {
   cors: {
-    origin: process.env.NODE_ENV === "production" ? ["https://yourwebsite.com"] : ["http://localhost:3000", "http://192.168.1.9:3000"]
+    origin: process.env.NODE_ENV === "production" ? allowedOrigins : ["http://localhost:3000", "http://192.168.1.9:3000"]
   }
 });
+
+// Cross Origin Resource Sharing
+app.use(cors(corsOptions));
 
 // Middleware
 app.use(express.json());

@@ -8,7 +8,7 @@ const handleNewUser = async (req, res) => {
     // Check for dublicate usernames
     const dublicate = await User.findOne({username: user}).exec()
     if (dublicate) return res.sendStatus(409) // Conflict
-
+  
     try {
         // Encrypt the password
         const hashedPwd = await bcrypt.hash(pwd, 10)
