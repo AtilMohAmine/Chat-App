@@ -19,7 +19,7 @@ const Chat = () => {
 
   useEffect(() => {
     messageInputRef.current.addEventListener('keypress', (e) => {
-      socket.emit('activity', socket.id);
+      socket.emit('activity', auth.user);
     });
   }, []);
 
@@ -56,7 +56,7 @@ const Chat = () => {
       e.preventDefault();
       if(!inputMessage || !auth?.user)
         return
-      socket.emit('message', { user: socket.id, message: inputMessage });
+      socket.emit('message', { user: auth.user, message: inputMessage });
       setInputMessage('');
   };
 
@@ -67,6 +67,7 @@ const Chat = () => {
       <div id="messages" ref={messagesContainerRef} className="flex flex-col space-y-4 p-3 overflow-y-auto scrollbar-thumb-blue scrollbar-thumb-rounded scrollbar-track-blue-lighter scrollbar-w-2 scrolling-touch">
       { 
         messages.map((messageGroup, index) => 
+        <div>
           <div key={index} className="chat-message">
             { messageGroup[0].user === 'server'
               ? (<div className='flex items-end justify-center'>
@@ -78,8 +79,8 @@ const Chat = () => {
                     }
                   </div>
                 </div>)
-              : (<div className={`flex items-end ${messageGroup[0].user === socket.id && 'justify-end' }`}>
-              <div className={`flex flex-col space-y-2 text-xs max-w-xs mx-2 order-2 ${messageGroup[0].user === socket.id ? 'items-end' : 'items-start'}`}>
+              : (<div className={`flex items-end ${messageGroup[0].user === auth.user && 'justify-end' }`}>
+              <div className={`flex flex-col space-y-2 text-xs max-w-xs mx-2 order-2 ${messageGroup[0].user === auth.user ? 'items-end' : 'items-start'}`}>
                   {
                     messageGroup.map((message, messageIndex) => {
                     
@@ -103,18 +104,20 @@ const Chat = () => {
                     const showTime = message.user !== 'server' && (messageIndex === 0 || (previousMessage && new Date(message.time).getMinutes() !== new Date(previousMessage.time).getMinutes()));
                       
                     return (
-                      <div key={messageIndex} className={`flex flex-col ${messageGroup[0].user === socket.id ? 'items-end' : 'items-start'}`}>
+                      <div key={messageIndex} className={`flex flex-col ${messageGroup[0].user === auth.user ? 'items-end' : 'items-start'}`}>
                         { showTime && <span className="text-gray-500 text-xxs mx-2 italic">{ formattedTime }</span> }
-                        <span className={`px-4 py-2 rounded-lg inline-block ${message.user === socket.id ? 'bg-blue-600 text-white' : 'bg-gray-300 text-gray-600'} ${messageIndex === messageGroup.length - 1 && ( message.user === socket.id ? 'rounded-br-none' : 'rounded-bl-none' )}`}>{message.message}</span>
+                        <span className={`px-4 py-2 rounded-lg inline-block ${message.user === auth.user ? 'bg-blue-600 text-white' : 'bg-gray-300 text-gray-600'} ${messageIndex === messageGroup.length - 1 && ( message.user === auth.user ? 'rounded-br-none' : 'rounded-bl-none' )}`}>{message.message}</span>
                       </div>
                       )
                     })
                   }
               </div>
-              <img src="./default_profile.png" alt="My profile" className={`w-6 h-6 rounded-full ${messageGroup[0].user === socket.id ? 'order-2' : 'order-1'}`} />
+              <img src="./default_profile.png" alt="My profile" className={`w-6 h-6 rounded-full ${messageGroup[0].user === auth.user ? 'order-2' : 'order-1'}`} />
             </div>)
             }
           </div>
+          { messageGroup[0].user !== 'server' && <div className={`text-gray-500 text-[8px] mx-2 my-1 ${messageGroup[0].user === auth.user ? 'text-right' : 'text-left'}`}>{messageGroup[0].user}</div> }
+        </div>
       )}
       <span className="flex items-center justify-center">
         {typingUser !== '' && (
