@@ -1,10 +1,10 @@
-import React, { useContext, useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import AuthContext from '../context/AuthProvider'
 import axios from 'axios'
+import useAuth from '../hooks/useAuth'
 
 const Login = () => {
-    const { setAuth } = useContext(AuthContext)
+    const { setAuth } = useAuth()
     const navigate = useNavigate()
     const userRef = useRef()
     const errRef = useRef()

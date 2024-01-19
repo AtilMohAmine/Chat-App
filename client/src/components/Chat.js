@@ -2,10 +2,13 @@ import React, { useEffect, useRef, useState } from 'react'
 import io from 'socket.io-client';
 import Typing from './Typing';
 import Sidebar from './Sidebar';
+import useAuth from '../hooks/useAuth';
+import SignInAsGuest from './SignInAsGuest';
 
 const socket = io(process.env.REACT_APP_SERVER_URL);
 
 const Chat = () => {
+  const { auth } = useAuth()
 
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
@@ -51,10 +54,10 @@ const Chat = () => {
 
   const handleSubmit = (e) => {
       e.preventDefault();
-      if(inputMessage) {
-        socket.emit('message', { user: socket.id, message: inputMessage });
-        setInputMessage('');
-      }
+      if(!inputMessage || !auth?.user)
+        return
+      socket.emit('message', { user: socket.id, message: inputMessage });
+      setInputMessage('');
   };
 
   return (
@@ -155,6 +158,7 @@ const Chat = () => {
       </div>
       </form>
       </div>
+      {!auth?.user && <SignInAsGuest />}
     </div>
   )
 }
