@@ -59,7 +59,8 @@ const Register = () => {
                 data: {
                   user,
                   pwd
-                }
+                },
+                withCredentials: true
             };
               
             await axios(options)
