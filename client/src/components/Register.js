@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios'
+import axios from '../api/axios'
 
 const USER_REGEX = /^[A-z][A-z0-9-_]{3,23}$/;
 const PWD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%]).{8,24}$/;
@@ -49,22 +49,17 @@ const Register = () => {
         }
 
         try {
-            const options = {
-                url: 'http://localhost:5000/register',
-                method: 'POST',
-                headers: {
-                  'Accept': 'application/json',
-                  'Content-Type': 'application/json;charset=UTF-8'
-                },
-                data: {
-                  user,
-                  pwd
-                },
-                withCredentials: true
-            };
-              
-            await axios(options)
+
+            await axios.post('/register',
+                JSON.stringify({ user, pwd }),
+                {
+                    headers: { 'Content-Type': 'application/json' },
+                    withCredentials: true
+                }
+            );
+
             navigate('/')
+
         } catch(err) {
             if(!err?.response) {
                 setErrMsg('No Server Response')

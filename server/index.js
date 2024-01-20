@@ -10,6 +10,7 @@ import cors from 'cors'
 import corsOptions from './config/corsOptions.js'
 import allowedOrigins from './config/allowedOrigins.js';
 import socketAuthMiddleware from './middleware/socketAuth.js';
+import cookieParser from 'cookie-parser'
 
 dotenv.config();
 const PORT = process.env.PORT || 3000;
@@ -19,8 +20,11 @@ const app = express();
 // Cross Origin Resource Sharing
 app.use(cors(corsOptions));
 
-// Middleware
+// Middleware for json
 app.use(express.json());
+
+// Middleware for cookies
+app.use(cookieParser())
 
 // Routes
 app.use('/register', registerRouter)

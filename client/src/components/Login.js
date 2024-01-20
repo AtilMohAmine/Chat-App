@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import axios from 'axios'
+import axios from '../api/axios'
 import useAuth from '../hooks/useAuth'
 
 const Login = () => {
@@ -24,21 +24,14 @@ const Login = () => {
     const handleSubmit = async (e) => {
         e.preventDefault()
         try {
-            const options = {
-                url: 'http://localhost:5000/auth',
-                method: 'POST',
-                headers: {
-                  'Accept': 'application/json',
-                  'Content-Type': 'application/json;charset=UTF-8'
-                },
-                data: {
-                  user,
-                  pwd
-                },
-                withCredentials: true
-            };
               
-            const response = await axios(options)
+            const response = await axios.post('/auth',
+                JSON.stringify({ user, pwd }),
+                {
+                    headers: { 'Content-Type': 'application/json' },
+                    withCredentials: true
+                }
+            );
             const accessToken = response?.data?.accessToken
             
             setAuth({user, pwd, accessToken})

@@ -27,7 +27,7 @@ const Chat = () => {
     if(!auth?.user)
       return
     socket.auth.token = auth?.accessToken;
-    socket.auth.username = auth?.user;
+    socket.auth.username = auth.user;
     socket.connect();
   }, [auth])
 
@@ -81,8 +81,8 @@ const Chat = () => {
       <div id="messages" ref={messagesContainerRef} className="flex flex-col space-y-4 p-3 overflow-y-auto scrollbar-thumb-blue scrollbar-thumb-rounded scrollbar-track-blue-lighter scrollbar-w-2 scrolling-touch">
       { 
         messages.map((messageGroup, index) => 
-        <div>
-          <div key={index} className="chat-message">
+        <div key={index} className="chat-message">
+          <div>
             { messageGroup[0].user === 'server'
               ? (<div className='flex items-end justify-center'>
                   <div className='flex flex-col space-y-2 text-xs max-w-xs items-center'>
