@@ -4,6 +4,8 @@ import Typing from './Typing';
 import Sidebar from './Sidebar';
 import useAuth from '../hooks/useAuth';
 import SignInAsGuest from './SignInAsGuest';
+import useRefreshToken from '../hooks/useRefreshToken';
+import Loading from './Loading';
 
 const socket = io(process.env.REACT_APP_SERVER_URL, {
   autoConnect: false,
@@ -15,27 +17,47 @@ const socket = io(process.env.REACT_APP_SERVER_URL, {
 
 const Chat = () => {
   const { auth } = useAuth()
+  const refresh = useRefreshToken()
 
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
   const [typingUser, setTypingUser] = useState('')
   const [typingTimeout, setTypingTimeout] = useState(null);
+  const [isLoading, setIsLoading] = useState(true)
   const messagesContainerRef = useRef(null);
   const messageInputRef = useRef(null);
 
   useEffect(() => {
-    if(!auth?.user)
+    const verifyRefreshToken = async() => {
+      try  {
+        await refresh()
+      }
+      catch (err) {
+        console.log(err)
+      }
+      finally {
+        setIsLoading(false)
+      }
+    }
+
+    !auth?.accessToken ? verifyRefreshToken() : setIsLoading(false)
+  }, [])
+
+  useEffect(() => {
+    if(isLoading || !auth?.user)
       return
     socket.auth.token = auth?.accessToken;
     socket.auth.username = auth.user;
     socket.connect();
-  }, [auth])
+  }, [auth, isLoading])
 
   useEffect(() => {
+    if(isLoading || !auth?.user)
+      return
     messageInputRef.current.addEventListener('keypress', (e) => {
       socket.emit('activity');
     });
-  }, []);
+  }, [auth, isLoading]);
 
   useEffect(() => {
     socket.on('message', (message) => {
@@ -68,15 +90,19 @@ const Chat = () => {
 
   const handleSubmit = (e) => {
       e.preventDefault();
-      if(!inputMessage || !auth?.user)
+      if(!inputMessage || !auth?.user || isLoading)
         return
       socket.emit('message', { message: inputMessage });
       setInputMessage('');
   };
 
   return (
-    <div className="flex h-screen">
-      <Sidebar />
+    <>
+      { 
+        isLoading 
+          ? <Loading />
+          : <div className="flex h-screen">
+          <Sidebar />
       <div className="flex-1 p:2 sm:p-6 justify-between flex flex-col h-screen"> 
       <div id="messages" ref={messagesContainerRef} className="flex flex-col space-y-4 p-3 overflow-y-auto scrollbar-thumb-blue scrollbar-thumb-rounded scrollbar-track-blue-lighter scrollbar-w-2 scrolling-touch">
       { 
@@ -177,6 +203,8 @@ const Chat = () => {
       </div>
       {!auth?.user && <SignInAsGuest />}
     </div>
+      }
+    </>
   )
 }
 
