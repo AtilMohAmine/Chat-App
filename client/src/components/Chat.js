@@ -5,7 +5,13 @@ import Sidebar from './Sidebar';
 import useAuth from '../hooks/useAuth';
 import SignInAsGuest from './SignInAsGuest';
 
-const socket = io(process.env.REACT_APP_SERVER_URL);
+const socket = io(process.env.REACT_APP_SERVER_URL, {
+  autoConnect: false,
+  auth: {
+    token: '',
+    userName: ''
+  }
+});
 
 const Chat = () => {
   const { auth } = useAuth()
@@ -18,8 +24,16 @@ const Chat = () => {
   const messageInputRef = useRef(null);
 
   useEffect(() => {
+    if(!auth?.user)
+      return
+    socket.auth.token = auth?.accessToken;
+    socket.auth.username = auth?.user;
+    socket.connect();
+  }, [auth])
+
+  useEffect(() => {
     messageInputRef.current.addEventListener('keypress', (e) => {
-      socket.emit('activity', auth.user);
+      socket.emit('activity');
     });
   }, []);
 
@@ -56,7 +70,7 @@ const Chat = () => {
       e.preventDefault();
       if(!inputMessage || !auth?.user)
         return
-      socket.emit('message', { user: auth.user, message: inputMessage });
+      socket.emit('message', { message: inputMessage });
       setInputMessage('');
   };
 
@@ -105,7 +119,7 @@ const Chat = () => {
                       
                     return (
                       <div key={messageIndex} className={`flex flex-col ${messageGroup[0].user === auth.user ? 'items-end' : 'items-start'}`}>
-                        { showTime && <span className="text-gray-500 text-xxs mx-2 italic">{ formattedTime }</span> }
+                        { showTime && <span className="text-gray-400 text-[10px] mx-2 italic">{ formattedTime }</span> }
                         <span className={`px-4 py-2 rounded-lg inline-block ${message.user === auth.user ? 'bg-blue-600 text-white' : 'bg-gray-300 text-gray-600'} ${messageIndex === messageGroup.length - 1 && ( message.user === auth.user ? 'rounded-br-none' : 'rounded-bl-none' )}`}>{message.message}</span>
                       </div>
                       )
@@ -116,7 +130,7 @@ const Chat = () => {
             </div>)
             }
           </div>
-          { messageGroup[0].user !== 'server' && <div className={`text-gray-500 text-[8px] mx-2 my-1 ${messageGroup[0].user === auth.user ? 'text-right' : 'text-left'}`}>{messageGroup[0].user}</div> }
+          { messageGroup[0].user !== 'server' && <div className={`text-gray-600 text-[10px] mx-2 my-1 ${messageGroup[0].user === auth.user ? 'text-right' : 'text-left'}`}>{messageGroup[0].user}</div> }
         </div>
       )}
       <span className="flex items-center justify-center">
