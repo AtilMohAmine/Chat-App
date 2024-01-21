@@ -95,7 +95,7 @@ const Chat = () => {
       socket.emit('message', { message: inputMessage });
       setInputMessage('');
   };
-
+  
   return (
     <>
       { 

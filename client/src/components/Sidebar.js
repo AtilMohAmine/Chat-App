@@ -2,13 +2,30 @@ import React, { useState } from 'react';
 import { HiOutlineUsers } from 'react-icons/hi';
 import { FaDotCircle } from 'react-icons/fa';
 import { MdOutlineClose, MdOutlineSegment } from "react-icons/md";
+import { IoIosAdd } from "react-icons/io";
+import AddNewRoomModal from './AddNewRoomModal';
 
 const Sidebar = () => {
    const [sidebarHidden, setSidebarHidden] = useState(true);
+   const [isAddRoomModalOpen, setAddRoomModalOpen] = useState(false);
 
   const toggleSidebar = () => {
    setSidebarHidden((prev) => !prev);
   };
+
+  const openAddRoomModal = () => {
+    if(isAddRoomModalOpen)
+      return
+    setAddRoomModalOpen(true);
+  };
+
+  const closeAddRoomModal = () => {
+    setAddRoomModalOpen(false);
+  };
+
+  const createRoom = (roomName) => {
+    setAddRoomModalOpen(false)
+  }
 
   return (
    <>
@@ -26,9 +43,12 @@ const Sidebar = () => {
          <MdOutlineClose className="bi bi-filter-left px-2" />
       </span>
       <div className="mt-8">
-        <div className="flex items-center mb-4">
-          <HiOutlineUsers className="text-2xl mr-2" />
-          <h2 className="text-xl font-semibold">Rooms</h2>
+        <div className="flex items-center sm:justify-between justify-start mb-4">
+          <div className='flex items-center'>
+            <HiOutlineUsers className="text-2xl mr-2" />
+            <h2 className="text-xl font-semibold">Rooms</h2>
+          </div>
+          <IoIosAdd className="sm:text-xl text-4xl sm:px-0 px-1 sm:ml-0 ml-3 font-semibold cursor-pointer bg-slate-300 hover:bg-slate-400 sm:rounded-sm rounded-md" onClick={openAddRoomModal} />
         </div>
         <ul>
           <li className="m-2">
@@ -46,6 +66,7 @@ const Sidebar = () => {
         </ul>
       </div>
     </div>
+    {isAddRoomModalOpen && <AddNewRoomModal onClose={closeAddRoomModal} createRoom={createRoom} />}
    </>
   );
 };
