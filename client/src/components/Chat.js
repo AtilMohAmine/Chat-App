@@ -6,19 +6,13 @@ import useAuth from '../hooks/useAuth';
 import SignInAsGuest from './SignInAsGuest';
 import useRefreshToken from '../hooks/useRefreshToken';
 import Loading from './Loading';
-
-const socket = io(process.env.REACT_APP_SERVER_URL, {
-  autoConnect: false,
-  auth: {
-    token: '',
-    userName: ''
-  }
-});
+import useSocket from '../hooks/useSocket';
 
 const Chat = () => {
   const { auth } = useAuth()
   const refresh = useRefreshToken()
-
+  const socket = useSocket()
+  
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
   const [typingUser, setTypingUser] = useState('')
@@ -29,7 +23,7 @@ const Chat = () => {
 
   useEffect(() => {
     const verifyRefreshToken = async() => {
-      try  {
+      try  { 
         await refresh()
       }
       catch (err) {
@@ -51,7 +45,7 @@ const Chat = () => {
     socket.connect();
   }, [auth, isLoading])
 
-  useEffect(() => {
+  useEffect(() => { 
     if(isLoading || !auth?.user)
       return
     messageInputRef.current.addEventListener('keypress', (e) => {
@@ -76,9 +70,11 @@ const Chat = () => {
         messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
       }
     });
+
   }, [messages]);
 
   useEffect(() => {
+    
     socket.on('activity', (user) => {
       setTypingUser(user)
       if (typingTimeout) {
@@ -90,7 +86,7 @@ const Chat = () => {
 
   const handleSubmit = (e) => {
       e.preventDefault();
-      if(!inputMessage || !auth?.user || isLoading)
+      if(!inputMessage || !auth?.user || isLoading || !socket.connected)
         return
       socket.emit('message', { message: inputMessage });
       setInputMessage('');

@@ -4,10 +4,12 @@ import { FaDotCircle } from 'react-icons/fa';
 import { MdOutlineClose, MdOutlineSegment } from "react-icons/md";
 import { IoIosAdd } from "react-icons/io";
 import AddNewRoomModal from './AddNewRoomModal';
+import useAuth from '../hooks/useAuth';
 
 const Sidebar = () => {
    const [sidebarHidden, setSidebarHidden] = useState(true);
    const [isAddRoomModalOpen, setAddRoomModalOpen] = useState(false);
+   const { auth } = useAuth()
 
   const toggleSidebar = () => {
    setSidebarHidden((prev) => !prev);
@@ -16,6 +18,10 @@ const Sidebar = () => {
   const openAddRoomModal = () => {
     if(isAddRoomModalOpen)
       return
+    if(!auth?.accessToken) {
+      alert("Please log in to create a new room.")
+      return
+    }
     setAddRoomModalOpen(true);
   };
 
