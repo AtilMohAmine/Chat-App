@@ -58,7 +58,7 @@ const Register = () => {
                 }
             );
 
-            navigate('/')
+            navigate('/login')
 
         } catch(err) {
             if(!err?.response) {

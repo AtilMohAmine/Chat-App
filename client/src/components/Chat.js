@@ -45,6 +45,12 @@ const Chat = () => {
     socket.connect();
   }, [auth, isLoading])
 
+  useEffect(() => {
+    socket.on("connect", () => {
+      socket.emit('join-room', 'lobby')
+    });    
+  }, [socket])
+
   useEffect(() => { 
     if(isLoading || !auth?.user)
       return
@@ -54,7 +60,7 @@ const Chat = () => {
   }, [auth, isLoading]);
 
   useEffect(() => {
-    socket.on('message', (message) => {
+    const handleNewMessage = (message) => {
       if(messages.length > 0) {
         const lastMessageGroup = [...messages[messages.length - 1]]
         if(lastMessageGroup[lastMessageGroup.length - 1].user === message.user) {
@@ -69,9 +75,15 @@ const Chat = () => {
       if (messagesContainerRef.current) {
         messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
       }
-    });
+    }
 
-  }, [messages]);
+    socket.on('message', handleNewMessage);
+
+    // Cleanup the socket listener when the component unmounts
+    return () => socket.off('message', handleNewMessage);
+  
+
+  }, [socket, messages]);
 
   useEffect(() => {
     

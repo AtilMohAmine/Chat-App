@@ -50,26 +50,58 @@ io.use(socketAuthMiddleware);
 io.on('connection', (socket) => {
   console.log(`User ${socket.user.username} connected`);
 
-  socket.emit('message', {user: 'server', message:'Welcome to the Chat App!'})
+  socket.emit('message', { user: 'server', message:'Welcome to the Chat App!' })
 
-  socket.broadcast.emit('message', {user: 'server', message: `User ${socket.user.username} connected`})
+  socket.broadcast.emit('message', { user: 'server', message: `User ${socket.user.username} connected` })
 
   socket.on('message', msg => {
-    console.log(`${socket.user.username}: ${msg.message}`)
-    io.emit('message', { 
-      ...msg, 
+    const newMsg = { 
+      ...msg,
       user: socket.user.username,
       time: Date.now()
-    });
+    }
+
+    const room = socket.user?.room
+    if(room)
+      io.to(room).emit('message', newMsg)
+
+    console.log(`${socket.user.username} / ${room}: ${msg.message}`)
   });
 
   socket.on('activity', () => {
-    socket.broadcast.emit('activity', socket.user.username)
+    const room = socket.user?.room
+    if(room)
+      socket.broadcast.to(room).emit('activity', socket.user.username)
+
   });
 
+  socket.on('join-room', (roomName) => {
+    if(socket.user?.room) {
+      socket.leave(socket.user.room);
+      io.to(socket.user.room).emit('message', { user: 'server', message: `${socket.user.username} has left the room` })
+    }
+
+    socket.join(roomName)
+    socket.user.room = roomName
+
+    socket.emit('message', { user: 'server', message: `You have joined the ${roomName} chat room` })
+    socket.broadcast.to(roomName).emit('message', { user: 'server', message: `${socket.user.username} has joined the room` })
+    
+    console.log(`${socket.user.username} joined to ${roomName}`)
+  })
+
+  socket.on('create-room', (roomName) => {
+    console.log(`${socket.user.username} created the ${roomName} chat room`)
+    io.emit('create-room', roomName)
+  })
+
   socket.on('disconnect', () => {
+    const room = socket.user?.room
+    if(room)
+      io.to(room).emit('message', { user: 'server', message: `${socket.user.username} has left the room` })
+    
+    socket.broadcast.emit('message', { user: 'server', message:`User ${socket.user.username} disconnected` });
     console.log(`User ${socket.user.username} disconnected`);
-    socket.broadcast.emit('message', {user: 'server', message:`User ${socket.user.username} disconnected`});
   });
 
 });
