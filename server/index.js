@@ -6,10 +6,12 @@ import registerRouter from './routes/register.js';
 import authRouter from './routes/auth.js'
 import refreshRouter from './routes/refresh.js'
 import logoutRouter from './routes/logout.js'
+import roomsRouter from './routes/rooms.js'
 import cors from 'cors'
 import corsOptions from './config/corsOptions.js'
 import allowedOrigins from './config/allowedOrigins.js';
 import socketAuthMiddleware from './middleware/socketAuth.js';
+import roomsController from './controllers/roomsController.js'
 import cookieParser from 'cookie-parser'
 
 dotenv.config();
@@ -31,6 +33,7 @@ app.use('/register', registerRouter)
 app.use('/auth', authRouter)
 app.use('/refresh', refreshRouter)
 app.use('/logout', logoutRouter)
+app.use('/rooms', roomsRouter)
 
 const expressServer = app.listen(PORT, () => {
   console.log(`Listening on port ${PORT}`);
@@ -91,8 +94,7 @@ io.on('connection', (socket) => {
   })
 
   socket.on('create-room', (roomName) => {
-    console.log(`${socket.user.username} created the ${roomName} chat room`)
-    io.emit('create-room', roomName)
+    roomsController.createNewRoom(io, socket, roomName)
   })
 
   socket.on('disconnect', () => {

@@ -6,12 +6,13 @@ import { IoIosAdd } from "react-icons/io";
 import AddNewRoomModal from './AddNewRoomModal';
 import useAuth from '../hooks/useAuth';
 import useSocket from '../hooks/useSocket';
+import axios from '../api/axios';
 
 const Sidebar = () => {
    const [sidebarHidden, setSidebarHidden] = useState(true);
    const [isAddRoomModalOpen, setAddRoomModalOpen] = useState(false);
-   const [rooms, setRooms] = useState(['lobby'])
-   const [currentRoom, setCurrentRoom] = useState('lobby')
+   const [rooms, setRooms] = useState([])
+   const [currentRoom, setCurrentRoom] = useState('Lobby')
    const { auth } = useAuth()
    const socket = useSocket()
 
@@ -33,7 +34,7 @@ const Sidebar = () => {
     setAddRoomModalOpen(false);
   };
 
-  const createRoom = (roomName) => {
+  const createRoom = async (roomName) => { 
     socket.emit('create-room', roomName)
     joinRoom(roomName)
     setAddRoomModalOpen(false)
@@ -47,10 +48,21 @@ const Sidebar = () => {
   }
 
   useEffect(() => {
-    socket.on('create-room', (roomName) => {
-      setRooms([...rooms, roomName])
+    socket.on('new-room-created', (room) => {
+      setRooms([...rooms, room])
     })
   }, [socket, rooms])
+
+  useEffect(() => {
+    const fetchRooms = async () => {
+      try {
+        const result = await axios.get('/Rooms')
+        setRooms(result.data)
+      } catch(err) {}
+    }
+
+    fetchRooms()
+  }, [auth])
 
   return (
    <>
@@ -77,11 +89,11 @@ const Sidebar = () => {
         </div>
         <ul>
           {
-            rooms.map((roomName, index) => 
-              <li key={index} className="m-2 cursor-pointer" onClick={() => joinRoom(roomName)}>
+            rooms.map((room, index) => 
+              <li key={index} className="m-2 cursor-pointer" onClick={() => joinRoom(room.name)}>
                 <div className="flex items-center">
-                  <FaDotCircle className={`text-sm mr-2 ${roomName === currentRoom && 'text-green-600'}`} />
-                  <span>{roomName}</span>
+                  <FaDotCircle className={`text-sm mr-2 ${room.name === currentRoom && 'text-green-600'}`} />
+                  <span>{room.name}</span>
                 </div>
               </li>
             )
