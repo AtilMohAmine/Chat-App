@@ -13,6 +13,7 @@ const Sidebar = () => {
    const [isAddRoomModalOpen, setAddRoomModalOpen] = useState(false);
    const [rooms, setRooms] = useState([])
    const [currentRoom, setCurrentRoom] = useState('Lobby')
+   const [usersInRoom, setUsersInRoom] = useState([])
    const { auth } = useAuth()
    const socket = useSocket()
 
@@ -69,6 +70,11 @@ const Sidebar = () => {
     socket.on('room-deleted', (room) => {
       setRooms(rooms.filter(r => r._id !== room._id))
     })
+
+    socket.on('users-in-room', (users) => {
+      setUsersInRoom(users)
+    })
+
   }, [socket, rooms])
 
   useEffect(() => {
@@ -76,8 +82,9 @@ const Sidebar = () => {
       try {
         const result = await axios.get('/Rooms')
         setRooms(result.data)
-        setCurrentRoom(result.data[0].name)
-      } catch(err) {}
+        
+        result.data.length && joinRoom(result.data[0].name) && setCurrentRoom(result.data[0].name)
+      } catch(err) {console.error(err)}
     }
 
     fetchRooms()
@@ -109,13 +116,28 @@ const Sidebar = () => {
         <ul>
           {
             rooms.map((room, index) => 
-              <li key={index} className="m-2 cursor-pointer">
+              <li key={index} className="m-2">
+                <div className='flex flex-col justify-center'>
                 <div className='flex flex-row justify-between items-center'>
-                <div className="flex items-center" onClick={() => joinRoom(room.name)}>
+                <div className="flex items-center cursor-pointer" onClick={() => joinRoom(room.name)}>
                   <FaDotCircle className={`text-sm mr-2 ${room.name === currentRoom && 'text-blue-800'}`} />
                   <span>{room.name}</span>
                 </div>
-                { auth?.id === room.author && <MdDeleteOutline onClick={() => deleteRoom(room._id)} className='text-m mr-2 hover:text-red-600' /> }
+                { auth?.id === room.author && <MdDeleteOutline onClick={() => deleteRoom(room._id)} size={20} className='text-m hover:text-red-600 cursor-pointer' /> }
+                </div>
+                { 
+                    room.name === currentRoom && usersInRoom 
+                      && <ul className='px-4'>
+                        { 
+                          usersInRoom.map((user, userIndex) => 
+                          <li key={userIndex} className='flex flex-row items-center bg-slate-200 hover:bg-slate-300 p-1 rounded-md mt-1 cursor-pointer'>
+                            <img src={user.picture ? user.picture : '/default_profile.png'} className='w-3 h-3 rounded-full'></img>
+                            <span className='text-xs ml-2 text-slate-800'>{user.username}</span>
+                          </li>
+                          )
+                        }
+                      </ul>
+                }
                 </div>
               </li>
             )

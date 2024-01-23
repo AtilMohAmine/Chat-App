@@ -82,6 +82,7 @@ io.on('connection', (socket) => {
     if(socket.user?.room) {
       socket.leave(socket.user.room);
       io.to(socket.user.room).emit('message', { user: 'server', message: `${socket.user.username} has left the room` })
+      roomsController.emitAllUsersInRoom(io, socket.user.room)
     }
 
     socket.join(roomName)
@@ -90,6 +91,7 @@ io.on('connection', (socket) => {
     socket.emit('message', { user: 'server', message: `You have joined the ${roomName} chat room` })
     socket.broadcast.to(roomName).emit('message', { user: 'server', message: `${socket.user.username} has joined the room` })
     
+    roomsController.emitAllUsersInRoom(io, roomName)
     console.log(`${socket.user.username} joined to ${roomName}`)
   })
 
@@ -103,8 +105,10 @@ io.on('connection', (socket) => {
 
   socket.on('disconnect', () => {
     const room = socket.user?.room
-    if(room)
+    if(room) {
       io.to(room).emit('message', { user: 'server', message: `${socket.user.username} has left the room` })
+      roomsController.emitAllUsersInRoom(io, room)
+    }
     
     socket.broadcast.emit('message', { user: 'server', message:`User ${socket.user.username} disconnected` });
     console.log(`User ${socket.user.username} disconnected`);

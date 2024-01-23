@@ -55,4 +55,14 @@ const deleteRoom = async (io, socket, roomId) => {
     console.log(`${socket.user.username} deleted the ${room.name} chat room`)
 }
 
-export default { getAllRooms, createNewRoom, deleteRoom }
+const emitAllUsersInRoom = async (io, roomName) => {
+    const sockets = await io.in(roomName).fetchSockets();
+    const users = sockets.map(socket => {
+        const { accessToken, id, ...otherUserData } = socket.user
+        return otherUserData
+    })
+    
+    io.to(roomName).emit('users-in-room', users)
+}
+
+export default { getAllRooms, createNewRoom, deleteRoom, emitAllUsersInRoom }
