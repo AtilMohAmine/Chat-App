@@ -33,8 +33,9 @@ const Login = () => {
                 }
             );
             const accessToken = response?.data?.accessToken
+            const id = response.data.id
             
-            setAuth({user, pwd, accessToken})
+            setAuth({id, user, accessToken})
             navigate('/')
         } catch(err) {
             if(!err?.response) {

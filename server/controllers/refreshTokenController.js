@@ -17,6 +17,7 @@ const handleRefreshToken = async (req, res) => {
         (err, decoded) => {
             if (err || foundUser.username !== decoded.username) return res.sendStatus(403)
             const username = foundUser.username
+            const id = foundUser.id
             const accessToken = jwt.sign(
                 {
                     "UserInfo": { 
@@ -27,7 +28,7 @@ const handleRefreshToken = async (req, res) => {
                 process.env.ACCESS_TOKEN_SECRET,
                 { expiresIn: '30s' }
             )
-            res.json({ username, accessToken })
+            res.json({ id, username, accessToken })
         }
     )
 }

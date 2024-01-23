@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { HiOutlineUsers } from 'react-icons/hi';
 import { FaDotCircle } from 'react-icons/fa';
-import { MdOutlineClose, MdOutlineSegment } from "react-icons/md";
+import { MdOutlineClose, MdOutlineSegment, MdDeleteOutline } from "react-icons/md";
 import { IoIosAdd } from "react-icons/io";
 import AddNewRoomModal from './AddNewRoomModal';
 import useAuth from '../hooks/useAuth';
@@ -36,8 +36,6 @@ const Sidebar = () => {
 
   const createRoom = async (roomName) => { 
     socket.emit('create-room', roomName)
-    joinRoom(roomName)
-    setAddRoomModalOpen(false)
   }
 
   const joinRoom = (roomName) => {
@@ -47,9 +45,29 @@ const Sidebar = () => {
     setCurrentRoom(roomName)
   }
 
+  const deleteRoom = (roomId) => {
+    socket.emit('delete-room', roomId)
+  }
+
+  useEffect(() => {
+    socket.on('create-room-response', (msg) => {
+      if(msg.status === 'failed')
+        alert(msg.msg)
+      else if(msg.status === 'success') {
+        joinRoom(msg.room.name)
+        setAddRoomModalOpen(false)
+      }
+    })
+
+  }, [socket])
+
   useEffect(() => {
     socket.on('new-room-created', (room) => {
       setRooms([...rooms, room])
+    })
+
+    socket.on('room-deleted', (room) => {
+      setRooms(rooms.filter(r => r._id !== room._id))
     })
   }, [socket, rooms])
 
@@ -58,6 +76,7 @@ const Sidebar = () => {
       try {
         const result = await axios.get('/Rooms')
         setRooms(result.data)
+        setCurrentRoom(result.data[0].name)
       } catch(err) {}
     }
 
@@ -90,10 +109,13 @@ const Sidebar = () => {
         <ul>
           {
             rooms.map((room, index) => 
-              <li key={index} className="m-2 cursor-pointer" onClick={() => joinRoom(room.name)}>
-                <div className="flex items-center">
-                  <FaDotCircle className={`text-sm mr-2 ${room.name === currentRoom && 'text-green-600'}`} />
+              <li key={index} className="m-2 cursor-pointer">
+                <div className='flex flex-row justify-between items-center'>
+                <div className="flex items-center" onClick={() => joinRoom(room.name)}>
+                  <FaDotCircle className={`text-sm mr-2 ${room.name === currentRoom && 'text-blue-800'}`} />
                   <span>{room.name}</span>
+                </div>
+                { auth?.id === room.author && <MdDeleteOutline onClick={() => deleteRoom(room._id)} className='text-m mr-2 hover:text-red-600' /> }
                 </div>
               </li>
             )

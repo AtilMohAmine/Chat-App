@@ -97,6 +97,10 @@ io.on('connection', (socket) => {
     roomsController.createNewRoom(io, socket, roomName)
   })
 
+  socket.on('delete-room', (roomId) => {
+    roomsController.deleteRoom(io, socket, roomId)
+  })
+
   socket.on('disconnect', () => {
     const room = socket.user?.room
     if(room)

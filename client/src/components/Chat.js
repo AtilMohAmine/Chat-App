@@ -45,11 +45,6 @@ const Chat = () => {
     socket.connect();
   }, [auth, isLoading])
 
-  useEffect(() => {
-    socket.on("connect", () => {
-      socket.emit('join-room', 'lobby')
-    });    
-  }, [socket])
 
   useEffect(() => { 
     if(isLoading || !auth?.user)
