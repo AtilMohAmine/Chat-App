@@ -2,10 +2,12 @@
 A real-time chat application built with Express.js, Socket.io, React, MongoDB, and JWT authentication.
 
 ## Features
-- Real-time chat functionality using Socket.io for bidirectional communication.
-- Secure user authentication using JWT (JSON Web Tokens).
-- Guest user access with limited privileges (unable to create rooms).
-- Support for sharing images and files in the chat.
+- **Real-time Chat Functionality:** Real-time chat functionality using Socket.io for bidirectional communication.
+- **User Authentication using JWT:** Secure user authentication using JWT (JSON Web Tokens).
+- **Responsive and Intuitive User Interface:** The application features a responsive design, ensuring a seamless user experience on various devices, including desktops, tablets, and mobile phones.
+- **Creating and Joining Rooms:** Users can create new chat rooms or join existing ones, allowing for organized and topic-specific conversations.
+- **Guest User Access with Limited Privileges:** Guest users can access the chat with limited privileges, such as being unable to create rooms.
+- **Allowed File Types for Messages:** Support for sharing images and files in the chat.
 
 ## Architecture Diagram
 Below is the architecture diagram illustrating the components and flow of the Chat App:
