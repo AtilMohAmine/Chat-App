@@ -7,6 +7,7 @@ import SignInAsGuest from './SignInAsGuest';
 import useRefreshToken from '../hooks/useRefreshToken';
 import Loading from './Loading';
 import useSocket from '../hooks/useSocket';
+import FileAttachment from './FileAttachment';
 
 const Chat = () => {
   const { auth } = useAuth()
@@ -15,11 +16,13 @@ const Chat = () => {
   
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
-  const [typingUser, setTypingUser] = useState('')
+  const [typingUser, setTypingUser] = useState('');
   const [typingTimeout, setTypingTimeout] = useState(null);
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(true);
   const messagesContainerRef = useRef(null);
   const messageInputRef = useRef(null);
+  const fileRef = useRef(null);
+  const imageFileRef = useRef(null);
 
   useEffect(() => {
     const verifyRefreshToken = async() => {
@@ -45,6 +48,11 @@ const Chat = () => {
     socket.connect();
   }, [auth, isLoading])
 
+  useEffect(() => {
+    socket.on("connect_error", (err) => {
+      alert(err.message)
+    })
+  }, [socket])
 
   useEffect(() => { 
     if(isLoading || !auth?.user)
@@ -56,40 +64,67 @@ const Chat = () => {
 
   useEffect(() => {
     const handleNewMessage = (message) => {
-      if(messages.length > 0) {
-        const lastMessageGroup = [...messages[messages.length - 1]]
-        if(lastMessageGroup[lastMessageGroup.length - 1].user === message.user) {
-          lastMessageGroup.push(message)
-          setMessages([...messages.slice(0, -1), lastMessageGroup])
-        } else {
-          setMessages([...messages, [message]])
-        }
-      } else {
-        setMessages([[message]])
-      }
-      if (messagesContainerRef.current) {
-        messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
-      }
+      addNewMessage(message)
     }
 
     socket.on('message', handleNewMessage);
 
     // Cleanup the socket listener when the component unmounts
-    return () => socket.off('message', handleNewMessage);
-  
+    return () => {
+      socket.off('message', handleNewMessage);
+    }
 
   }, [socket, messages]);
 
   useEffect(() => {
     
-    socket.on('activity', (user) => {
+    const handleActivity = (user) => {
+
       setTypingUser(user)
       if (typingTimeout) {
         clearTimeout(typingTimeout);
       }
       setTypingTimeout(setTimeout(() => setTypingUser(''), 3000));
-    });
-  }, [typingTimeout]);
+    }
+
+    socket.on('activity', handleActivity);
+
+    // Cleanup the socket listener when the component unmounts
+    return () => {
+      socket.off('activity', handleActivity);
+    }
+  }, [socket, typingTimeout]);
+
+  useEffect(() => {
+
+    const handleUploadError = (message) => {
+      alert(message.message)
+    }
+
+    socket.on('upload-error', handleUploadError)
+
+    return () => {
+      socket.off('upload-error', handleUploadError);
+    }
+
+  }, [socket])
+
+  const addNewMessage = (message) => {
+    if(messages.length > 0) {
+      const lastMessageGroup = [...messages[messages.length - 1]]
+      if(lastMessageGroup[lastMessageGroup.length - 1].user === message.user) {
+        lastMessageGroup.push(message)
+        setMessages([...messages.slice(0, -1), lastMessageGroup])
+      } else {
+        setMessages([...messages, [message]])
+      }
+    } else {
+      setMessages([[message]])
+    }
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+    }
+  }
 
   const handleSubmit = (e) => {
       e.preventDefault();
@@ -98,6 +133,13 @@ const Chat = () => {
       socket.emit('message', { message: inputMessage });
       setInputMessage('');
   };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0]
+    if(!file)
+      return
+    socket.emit('upload', { fileName: file.name, data: file })
+  }
   
   return (
     <>
@@ -149,8 +191,13 @@ const Chat = () => {
                     return (
                       <div key={messageIndex} className={`flex flex-col ${messageGroup[0].user === auth.user ? 'items-end' : 'items-start'}`}>
                         { showTime && <span className="text-gray-400 text-[10px] mx-2 italic">{ formattedTime }</span> }
-                        <span className={`px-4 py-2 rounded-lg inline-block ${message.user === auth.user ? 'bg-blue-600 text-white' : 'bg-gray-300 text-gray-600'} ${messageIndex === messageGroup.length - 1 && ( message.user === auth.user ? 'rounded-br-none' : 'rounded-bl-none' )}`}>{message.message}</span>
-                      </div>
+                        { message?.buffer
+                          ? message.isImage 
+                            ? <img src={`data:${message.type.mime};base64,${message.buffer.toString('base64')}`} className='rounded-md max-w-full sm:max-w-xs' />
+                            : <FileAttachment fileName={message.fileName} size={message.size} type={message.type.mime} buffer={message.buffer} />
+                          : <span className={`px-4 py-2 rounded-lg inline-block ${message.user === auth.user ? 'bg-blue-600 text-white' : 'bg-gray-300 text-gray-600'} ${messageIndex === messageGroup.length - 1 && ( message.user === auth.user ? 'rounded-br-none' : 'rounded-bl-none' )}`}>{message.message}</span>
+                        }
+                        </div>
                       )
                     })
                   }
@@ -176,13 +223,15 @@ const Chat = () => {
         <div className="relative flex">
           
             <input type="text" ref={messageInputRef} value={inputMessage} placeholder="Write your message!" className="w-full focus:outline-none focus:placeholder-gray-400 text-gray-600 placeholder-gray-600 pl-6 bg-gray-200 rounded-md py-3" onChange={(e) => setInputMessage(e.target.value)} />
+            <input ref={fileRef} type="file" onChange={handleFileChange} className="hidden" />
+            <input ref={imageFileRef} type="file" onChange={handleFileChange} accept="image/*" className="hidden" />
             <div className="absolute right-0 items-center inset-y-0 hidden sm:flex">
-              <button type="button" className="inline-flex items-center justify-center rounded-full h-10 w-10 transition duration-500 ease-in-out text-gray-500 hover:bg-gray-300 focus:outline-none">
+              <button type="button" onClick={() => fileRef.current.click()} className="inline-flex items-center justify-center rounded-full h-10 w-10 transition duration-500 ease-in-out text-gray-500 hover:bg-gray-300 focus:outline-none">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="h-6 w-6 text-gray-600">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
                   </svg>
               </button>
-              <button type="button" className="inline-flex items-center justify-center rounded-full h-10 w-10 transition duration-500 ease-in-out text-gray-500 hover:bg-gray-300 focus:outline-none">
+              <button type="button" onClick={() => imageFileRef.current.click()} className="inline-flex items-center justify-center rounded-full h-10 w-10 transition duration-500 ease-in-out text-gray-500 hover:bg-gray-300 focus:outline-none">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="h-6 w-6 text-gray-600">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
@@ -204,7 +253,7 @@ const Chat = () => {
       </div>
       </form>
       </div>
-      {!auth?.user && <SignInAsGuest />}
+      {(!auth?.user || !socket.connected) && <SignInAsGuest />}
     </div>
       }
     </>

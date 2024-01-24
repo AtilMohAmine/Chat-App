@@ -10,9 +10,11 @@ import roomsRouter from './routes/rooms.js'
 import cors from 'cors'
 import corsOptions from './config/corsOptions.js'
 import allowedOrigins from './config/allowedOrigins.js';
+import allowedFileTypes from './config/allowedFileTypes.js'
 import socketAuthMiddleware from './middleware/socketAuth.js';
 import roomsController from './controllers/roomsController.js'
 import cookieParser from 'cookie-parser'
+import { fileTypeFromBuffer } from 'file-type'
 
 dotenv.config();
 const PORT = process.env.PORT || 3000;
@@ -45,10 +47,11 @@ connectDB()
 const io = new Server(expressServer, {
   cors: {
     origin: process.env.NODE_ENV === "production" ? allowedOrigins : ["http://localhost:3000", "http://192.168.1.9:3000"]
-  }
+  },
+  maxHttpBufferSize: 1e8 // 100 MB
 });
 
-io.use(socketAuthMiddleware);
+io.use((socket, next) => socketAuthMiddleware(io, socket, next));
 
 io.on('connection', (socket) => {
   console.log(`User ${socket.user.username} connected`);
@@ -101,6 +104,30 @@ io.on('connection', (socket) => {
 
   socket.on('delete-room', (roomId) => {
     roomsController.deleteRoom(io, socket, roomId)
+  })
+
+  socket.on('upload', async ({ fileName, data }) => {
+    const fileType = await fileTypeFromBuffer(data)
+    if (!allowedFileTypes.includes(fileType?.mime)) {
+      return socket.emit('upload-error', { message: 'File type not allowed.' });
+    }
+    const fileSize = Buffer.byteLength(data)
+    const isImage = fileType?.mime.startsWith('image')
+    const newFile = { 
+      fileName: fileName,
+      buffer: isImage ? data.toString('base64') : data,
+      type: fileType,
+      size: fileSize,
+      isImage,
+      user: socket.user.username,
+      time: Date.now()
+    }
+  
+    const room = socket.user?.room
+    if(room)
+      io.to(room).emit('message', newFile)
+
+    console.log(`${socket.user.username} / ${room}: sending a ${fileName} file`)
   })
 
   socket.on('disconnect', () => {
