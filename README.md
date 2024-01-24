@@ -7,6 +7,13 @@ A real-time chat application built with Express.js, Socket.io, React, MongoDB, a
 - Guest user access with limited privileges (unable to create rooms).
 - Support for sharing images and files in the chat.
 
+## Architecture Diagram
+Below is the architecture diagram illustrating the components and flow of the Chat App:
+
+<p align="center">
+   <img src="https://github.com/AtilMohAmine/Chat-App/assets/86023602/d0745e82-a300-437e-ac79-b62b95ebf9d0">
+</p>
+
 ## Getting Started
 
 ### Installation
