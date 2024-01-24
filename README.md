@@ -72,9 +72,12 @@ export default allowedOrigins;
 This configuration indicates that your server will allow requests from https://www.yoursite.com and http://localhost:3000.
 
 ### Editing allowedFileTypes.js:
+The `allowedFileTypes.js` configuration is specifying which types of files are accepted for sending in messages within your chat application.
 
 In the server/config directory, Modify the content of `allowedFileTypes.js` to specify the types of files that are allowed. For example, you might have:
 ```javascript
+// server/config/allowedFileTypes.js
+
 const allowedFileTypes = [
     'image/jpeg',
     'image/png',
@@ -84,8 +87,6 @@ const allowedFileTypes = [
 export default allowedFileTypes
 ```
 This configuration indicates that your server will allow files with MIME types image/jpeg, image/png, and application/pdf.
-
-The `allowedFileTypes.js` configuration is specifying which types of files are accepted for sending in messages within your chat application.
 
 ### Why These Configurations Matter:
 
