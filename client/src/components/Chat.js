@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react'
-import io from 'socket.io-client';
 import Typing from './Typing';
 import Sidebar from './Sidebar';
 import useAuth from '../hooks/useAuth';
@@ -8,6 +7,7 @@ import useRefreshToken from '../hooks/useRefreshToken';
 import Loading from './Loading';
 import useSocket from '../hooks/useSocket';
 import FileAttachment from './FileAttachment';
+import EmojiPicker from 'emoji-picker-react';
 
 const Chat = () => {
   const { auth } = useAuth()
@@ -23,6 +23,7 @@ const Chat = () => {
   const messageInputRef = useRef(null);
   const fileRef = useRef(null);
   const imageFileRef = useRef(null);
+  const [showEmojis, setShowEmojis] = useState(false);
 
   useEffect(() => {
     const verifyRefreshToken = async() => {
@@ -140,6 +141,10 @@ const Chat = () => {
       return
     socket.emit('upload', { fileName: file.name, data: file })
   }
+
+  const handleEmojiClick = (emojiData, event) => {
+    setInputMessage((prev) => (prev + emojiData.emoji))
+  }
   
   return (
     <>
@@ -218,13 +223,18 @@ const Chat = () => {
         )}
       </span>
       </div>
+      
       <form onSubmit={handleSubmit}>
       <div className="border-t-2 border-gray-200 px-4 pt-4 mb-2 sm:mb-0">
         <div className="relative flex">
-          
             <input type="text" ref={messageInputRef} value={inputMessage} placeholder="Write your message!" className="w-full focus:outline-none focus:placeholder-gray-400 text-gray-600 placeholder-gray-600 pl-6 bg-gray-200 rounded-md py-3" onChange={(e) => setInputMessage(e.target.value)} />
             <input ref={fileRef} type="file" onChange={handleFileChange} className="hidden" />
             <input ref={imageFileRef} type="file" onChange={handleFileChange} accept="image/*" className="hidden" />
+            {showEmojis && (
+              <div className='absolute right-0 bottom-10 z-40'>
+                  <EmojiPicker onEmojiClick={handleEmojiClick} />
+              </div>
+            )}
             <div className="absolute right-0 items-center inset-y-0 hidden sm:flex">
               <button type="button" onClick={() => fileRef.current.click()} className="inline-flex items-center justify-center rounded-full h-10 w-10 transition duration-500 ease-in-out text-gray-500 hover:bg-gray-300 focus:outline-none">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="h-6 w-6 text-gray-600">
@@ -237,7 +247,7 @@ const Chat = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
                   </svg>
               </button>
-              <button type="button" className="inline-flex items-center justify-center rounded-full h-10 w-10 transition duration-500 ease-in-out text-gray-500 hover:bg-gray-300 focus:outline-none">
+              <button type="button" onClick={() => setShowEmojis(!showEmojis)} className="inline-flex items-center justify-center rounded-full h-10 w-10 transition duration-500 ease-in-out text-gray-500 hover:bg-gray-300 focus:outline-none">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="h-6 w-6 text-gray-600">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                   </svg>
