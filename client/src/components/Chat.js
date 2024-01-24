@@ -133,6 +133,7 @@ const Chat = () => {
         return
       socket.emit('message', { message: inputMessage });
       setInputMessage('');
+      setShowEmojis(false);
   };
 
   const handleFileChange = (e) => {

@@ -8,15 +8,19 @@ import useAuth from '../hooks/useAuth';
 import useSocket from '../hooks/useSocket';
 import axios from '../api/axios';
 import UserListItem from './UserListItem';
+import useLogout from '../hooks/useLogout';
+import { useNavigate } from 'react-router-dom';
 
 const Sidebar = () => {
    const [sidebarHidden, setSidebarHidden] = useState(true);
    const [isAddRoomModalOpen, setAddRoomModalOpen] = useState(false);
    const [rooms, setRooms] = useState([])
-   const [currentRoom, setCurrentRoom] = useState('Lobby')
+   const [currentRoom, setCurrentRoom] = useState('')
    const [usersInRoom, setUsersInRoom] = useState([])
    const { auth } = useAuth()
    const socket = useSocket()
+   const logout = useLogout()
+   const navigate = useNavigate()
 
   const toggleSidebar = () => {
    setSidebarHidden((prev) => !prev);
@@ -91,6 +95,11 @@ const Sidebar = () => {
     fetchRooms()
   }, [auth])
 
+  const handleLogout = async () => {
+    await logout()
+    navigate('/login')
+  }
+
   return (
    <>
       <span
@@ -106,7 +115,8 @@ const Sidebar = () => {
       >
          <MdOutlineClose className="bi bi-filter-left px-2" />
       </span>
-      <div className="mt-8">
+      <div className="flex flex-col justify-between h-full">
+        <div className="mt-8">
         <div className="flex items-center sm:justify-between justify-start mb-4">
           <div className='flex items-center'>
             <HiOutlineUsers className="text-2xl mr-2" />
@@ -141,6 +151,15 @@ const Sidebar = () => {
             )
           }
         </ul>
+        </div>
+        <div>
+          { 
+            auth?.accessToken && 
+            <button onClick={handleLogout} className="w-full my-2 px-6 py-3 text-sm font-medium tracking-wide text-red-600 capitalize transition-colors duration-300 transform bg-white rounded-lg hover:bg-gray-50 focus:outline-none ring-1 ring-inset ring-red-300 focus:ring-opacity-50">
+              Logout
+            </button>
+          }
+        </div>
       </div>
     </div>
     {isAddRoomModalOpen && <AddNewRoomModal onClose={closeAddRoomModal} createRoom={createRoom} />}

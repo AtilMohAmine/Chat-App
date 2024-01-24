@@ -20,7 +20,7 @@ const handleLogout = async (req, res) => {
 
     res.clearCookie('jwt', { 
         sameSite: 'None', 
-        secure: false, // secure: true
+        secure: true,
         httpOnly: true
     })
     res.sendStatus(204)
