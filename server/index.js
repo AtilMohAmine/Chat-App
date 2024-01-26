@@ -7,6 +7,7 @@ import authRouter from './routes/auth.js'
 import refreshRouter from './routes/refresh.js'
 import logoutRouter from './routes/logout.js'
 import roomsRouter from './routes/rooms.js'
+import userRouter from './routes/user.js'
 import cors from 'cors'
 import corsOptions from './config/corsOptions.js'
 import allowedOrigins from './config/allowedOrigins.js';
@@ -15,6 +16,10 @@ import socketAuthMiddleware from './middleware/socketAuth.js';
 import roomsController from './controllers/roomsController.js'
 import cookieParser from 'cookie-parser'
 import { fileTypeFromBuffer } from 'file-type'
+import path, { dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 dotenv.config();
 const PORT = process.env.PORT || 3000;
@@ -30,12 +35,16 @@ app.use(express.json());
 // Middleware for cookies
 app.use(cookieParser())
 
+// Serve static files from the 'public' directory
+app.use(express.static(path.join(__dirname, 'public')));
+
 // Routes
 app.use('/register', registerRouter)
 app.use('/auth', authRouter)
 app.use('/refresh', refreshRouter)
 app.use('/logout', logoutRouter)
 app.use('/rooms', roomsRouter)
+app.use('/user', userRouter)
 
 const expressServer = app.listen(PORT, () => {
   console.log(`Listening on port ${PORT}`);
@@ -64,6 +73,7 @@ io.on('connection', (socket) => {
     const newMsg = { 
       ...msg,
       user: socket.user.username,
+      profilePicture: socket.user.profilePicture,
       time: Date.now()
     }
 
@@ -108,7 +118,7 @@ io.on('connection', (socket) => {
 
   socket.on('upload', async ({ fileName, data }) => {
     const fileType = await fileTypeFromBuffer(data)
-    if (!allowedFileTypes.includes(fileType?.mime)) {
+    if (!allowedFileTypes.messages.includes(fileType?.mime)) {
       return socket.emit('upload-error', { message: 'File type not allowed.' });
     }
     const fileSize = Buffer.byteLength(data)

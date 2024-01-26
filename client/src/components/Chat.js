@@ -8,6 +8,8 @@ import Loading from './Loading';
 import useSocket from '../hooks/useSocket';
 import FileAttachment from './FileAttachment';
 import EmojiPicker from 'emoji-picker-react';
+import useAxiosPrivate from '../hooks/useAxiosPrivate'
+import { useNavigate } from 'react-router-dom';
 
 const Chat = () => {
   const { auth } = useAuth()
@@ -23,7 +25,10 @@ const Chat = () => {
   const messageInputRef = useRef(null);
   const fileRef = useRef(null);
   const imageFileRef = useRef(null);
+  const profilePictureFileRef = useRef(null);
   const [showEmojis, setShowEmojis] = useState(false);
+  const axiosPrivate = useAxiosPrivate()
+  const navigate = useNavigate()
 
   useEffect(() => {
     const verifyRefreshToken = async() => {
@@ -146,6 +151,26 @@ const Chat = () => {
   const handleEmojiClick = (emojiData, event) => {
     setInputMessage((prev) => (prev + emojiData.emoji))
   }
+
+  const handleProfilePicture = async (e) => {
+    const file = e.target.files[0]
+    if(!file)
+      return
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      await axiosPrivate.post('/user/upload-profile-picture', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data', 
+        }
+      })
+      navigate(0)
+    } catch (err) {
+      console.error(err)
+    }
+  }
   
   return (
     <>
@@ -208,7 +233,7 @@ const Chat = () => {
                     })
                   }
               </div>
-              <img src="./default_profile.png" alt="My profile" className={`w-6 h-6 rounded-full ${messageGroup[0].user === auth.user ? 'order-2' : 'order-1'}`} />
+              <img src={messageGroup[0].profilePicture ? process.env.REACT_APP_SERVER_URL + '/uploads/profile-pictures/' + messageGroup[0].profilePicture : './default_profile.png'} onClick={() => messageGroup[0].user === auth.user && profilePictureFileRef.current.click()} alt="My profile" className={`w-6 h-6 rounded-full ${messageGroup[0].user === auth.user ? 'order-2 cursor-pointer' : 'order-1'}`} />
             </div>)
             }
           </div>
@@ -231,6 +256,7 @@ const Chat = () => {
             <input type="text" ref={messageInputRef} value={inputMessage} placeholder="Write your message!" className="w-full focus:outline-none focus:placeholder-gray-400 text-gray-600 placeholder-gray-600 pl-6 bg-gray-200 rounded-md py-3" onChange={(e) => setInputMessage(e.target.value)} />
             <input ref={fileRef} type="file" onChange={handleFileChange} className="hidden" />
             <input ref={imageFileRef} type="file" onChange={handleFileChange} accept="image/*" className="hidden" />
+            <input ref={profilePictureFileRef} type="file" onChange={handleProfilePicture} accept="image/*" className="hidden" />
             {showEmojis && (
               <div className='absolute right-0 bottom-10 z-40'>
                   <EmojiPicker onEmojiClick={handleEmojiClick} />
