@@ -130,6 +130,7 @@ io.on('connection', (socket) => {
       size: fileSize,
       isImage,
       user: socket.user.username,
+      profilePicture: socket.user.profilePicture,
       time: Date.now()
     }
   

@@ -1,6 +1,10 @@
 # Chat App
 A real-time chat application built with Express.js, Socket.io, React, MongoDB, and JWT authentication.
 
+<p align="center">
+   <img src="https://github.com/AtilMohAmine/Chat-App/assets/86023602/a6d9e2f8-6244-4d67-a62c-9da051fbae35" style="border-radius: 1%">
+</p>
+
 ## Features
 - **Real-time Chat Functionality:** Real-time chat functionality using Socket.io for bidirectional communication.
 - **User Authentication using JWT:** Secure user authentication using JWT (JSON Web Tokens).
