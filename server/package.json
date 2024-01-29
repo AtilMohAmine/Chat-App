@@ -6,7 +6,19 @@
   "type": "module",
   "scripts": {
     "start": "node --watch server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "transform": {
+      "^.+\\.js$": "babel-jest",
+      "^.+\\.ts$": "ts-jest"
+    },
+    "transformIgnorePatterns": [
+      "node_modules/(?!(file-type|strtok3|peek-readable|token-types))"
+      
+    ],
+    "moduleDirectories": ["node_modules"]
   },
   "author": "",
   "license": "ISC",
@@ -20,6 +32,15 @@
     "file-type": "^19.0.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.0.4",
-    "socket.io": "^4.7.4"
+    "socket.io": "^4.7.4",
+    "ts-jest": "^29.1.2"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.23.9",
+    "@babel/preset-env": "^7.23.9",
+    "babel-jest": "^29.7.0",
+    "babel-plugin-transform-import-meta": "^2.2.1",
+    "jest": "^29.7.0",
+    "supertest": "^6.3.4"
   }
 }
