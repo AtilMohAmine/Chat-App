@@ -1,50 +1,15 @@
-import express from 'express';
 import { Server } from 'socket.io';
 import dotenv from 'dotenv';
+import { fileTypeFromBuffer } from 'file-type'
+import app from './app.js';
 import connectDB from './config/dbConn.js'
-import registerRouter from './routes/register.js';
-import authRouter from './routes/auth.js'
-import refreshRouter from './routes/refresh.js'
-import logoutRouter from './routes/logout.js'
-import roomsRouter from './routes/rooms.js'
-import userRouter from './routes/user.js'
-import cors from 'cors'
-import corsOptions from './config/corsOptions.js'
 import allowedOrigins from './config/allowedOrigins.js';
 import allowedFileTypes from './config/allowedFileTypes.js'
 import socketAuthMiddleware from './middleware/socketAuth.js';
 import roomsController from './controllers/roomsController.js'
-import cookieParser from 'cookie-parser'
-import { fileTypeFromBuffer } from 'file-type'
-import path, { dirname } from 'path';
-import { fileURLToPath } from 'url';
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
 
 dotenv.config();
 const PORT = process.env.PORT || 3000;
-
-const app = express();
-
-// Cross Origin Resource Sharing
-app.use(cors(corsOptions));
-
-// Middleware for json
-app.use(express.json());
-
-// Middleware for cookies
-app.use(cookieParser())
-
-// Serve static files from the 'public' directory
-app.use(express.static(path.join(__dirname, 'public')));
-
-// Routes
-app.use('/register', registerRouter)
-app.use('/auth', authRouter)
-app.use('/refresh', refreshRouter)
-app.use('/logout', logoutRouter)
-app.use('/rooms', roomsRouter)
-app.use('/user', userRouter)
 
 const expressServer = app.listen(PORT, () => {
   console.log(`Listening on port ${PORT}`);

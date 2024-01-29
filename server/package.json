@@ -5,7 +5,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "node --watch index.js",
+    "start": "node --watch server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
