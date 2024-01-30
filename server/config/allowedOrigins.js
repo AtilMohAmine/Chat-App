@@ -1,5 +1,5 @@
 const allowedOrigins = [
-    'https://www.yoursite.com',
+    'https://chat-app-fj7r.onrender.com',
     'http://localhost:3000'
 ];
 
