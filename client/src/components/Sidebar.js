@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react';
 import { HiOutlineUsers } from 'react-icons/hi';
 import { FaDotCircle } from 'react-icons/fa';

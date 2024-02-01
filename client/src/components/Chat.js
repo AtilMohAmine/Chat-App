@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useRef, useState } from 'react'
 import Typing from './Typing';
 import Sidebar from './Sidebar';
@@ -226,7 +227,7 @@ const Chat = () => {
                         { showTime && <span className="text-gray-400 text-[10px] mx-2 italic">{ formattedTime }</span> }
                         { message?.buffer
                           ? message.isImage 
-                            ? <img src={`data:${message.type.mime};base64,${message.buffer.toString('base64')}`} className='rounded-md max-w-full sm:max-w-xs' />
+                            ? <img alt={message.fileName} src={`data:${message.type.mime};base64,${message.buffer.toString('base64')}`} className='rounded-md max-w-full sm:max-w-xs' />
                             : <FileAttachment fileName={message.fileName} size={message.size} type={message.type.mime} buffer={message.buffer} />
                           : <span className={`px-4 py-2 rounded-lg inline-block ${message.user === auth.user ? 'bg-blue-600 text-white' : 'bg-gray-300 text-gray-600'} ${messageIndex === messageGroup.length - 1 && ( message.user === auth.user ? 'rounded-br-none' : 'rounded-bl-none' )}`}>{message.message}</span>
                         }
