@@ -138,6 +138,22 @@ npm start
 
 This will run the server on the specified port and the client on its respective port.
 
+## Screenshots
+
+Here are some screenshots showcasing the Chat App:
+
+<p align="center">
+   <img src="https://github.com/AtilMohAmine/Chat-App/assets/86023602/76fe8eb7-9d77-451c-b9d3-5a0d74f3492f">
+   <img src="https://github.com/AtilMohAmine/Chat-App/assets/86023602/38bf0037-8419-40d5-86f4-62f73b1558a9">
+   <img src="https://github.com/AtilMohAmine/Chat-App/assets/86023602/19f19bab-7a89-4a41-a14a-1c43cfc0dc79">
+</p>
+
+<p align="center">
+   <img width="200px" src="https://github.com/AtilMohAmine/Chat-App/assets/86023602/2a6c462a-ed98-4105-9103-607a96ca6c42">
+   <img width="200px" src="https://github.com/AtilMohAmine/Chat-App/assets/86023602/f90eabc9-d862-48f6-a98a-9a6774ea129e">
+   <img width="200px" src="https://github.com/AtilMohAmine/Chat-App/assets/86023602/573c5388-190d-4f28-83ac-6cdfabc3ad60">
+</p>
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](https://github.com/AtilMohAmine/Chat-App/blob/main/LICENSE) file for details.
