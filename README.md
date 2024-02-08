@@ -58,6 +58,8 @@ npm install
 
 ## Configuration
 
+### Configuring Environment Variables 
+
 Create a `.env` file in the server directory and set the following environment variables:
 
 ```env
@@ -137,6 +139,79 @@ npm start
 ```
 
 This will run the server on the specified port and the client on its respective port.
+
+## Using Docker
+
+### Configuring Environment Variables
+
+Before building the Docker images, make sure to configure the environment variables in the Dockerfiles according to your requirements.
+
+Server Dockerfile (server/Dockerfile)
+
+```Dockerfile
+...
+
+# Set environment variables
+ENV PORT=your_port \
+    DATABASE_URI=your_database_uri \
+    ACCESS_TOKEN_SECRET=your_access_token_secret \
+    REFRESH_TOKEN_SECRET=your_refresh_token_secret
+
+...
+```
+
+Client Dockerfile (client/Dockerfile)
+
+```Dockerfile
+...
+
+# Set environment variables
+ENV REACT_APP_SERVER_URL=your_server_url
+
+...
+```
+
+### Building Docker Images
+
+To build Docker images for both the server and client applications, navigate to the respective directories (server and client) and run:
+
+```bash
+    docker build -t chat-server ./server
+    docker build -t chat-client ./client
+```
+
+Replace chat-server and chat-client with your desired image names.
+
+### Running Docker Containers
+
+After building the Docker images, you can run Docker containers for the server and client applications using the following commands:
+
+Server Container
+
+```bash
+    docker run -d -p 3001:3001 --name chat-server chat-server
+```
+
+Client Container
+
+```bash
+    docker run -d -p 3000:3000 --name chat-client chat-client
+
+```
+
+Replace chat-server and chat-client with your image names, and adjust the port mappings (`-p`) as needed.
+
+The syntax for the `-p` option is `-p HOST_PORT:CONTAINER_PORT`.
+
+- `HOST_PORT`: This is the port on your host machine (the machine running Docker) that you want to map to.
+ - `CONTAINER_PORT`: This is the port inside the Docker container that you want to expose.
+
+### Accessing Your App
+
+Once the containers are running, you can access your application at the following URLs:
+
+ - Server: http://localhost:3001
+ - Client: http://localhost:3000
 
 ## Screenshots
 
