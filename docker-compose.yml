@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+  chat-server:
+    build: ./server
+    env_file: ./server/.env
+    ports:
+      - "5000:5000"
+    
+
+  chat-client:
+    build: ./client
+    env_file: ./client/.env
+    environment:
+      REACT_APP_SERVER_URL: http://chat-server:5000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - chat-server

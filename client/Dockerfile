@@ -4,9 +4,6 @@ FROM node:20
 # Set the working directory inside the container
 WORKDIR /app
 
-# Set environment variables
-ENV REACT_APP_SERVER_URL=your_server_url
-
 # Copy package.json and package-lock.json to the container
 COPY package*.json ./
 

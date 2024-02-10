@@ -4,12 +4,6 @@ FROM node:20
 # Set the working directory inside the container
 WORKDIR /app
 
-# Set environment variables
-ENV PORT=your_port \
-    DATABASE_URI=your_database_uri \
-    ACCESS_TOKEN_SECRET=your_access_token_secret \
-    REFRESH_TOKEN_SECRET=your_refresh_token_secret
-
 # Copy package.json and package-lock.json to the container
 COPY package*.json ./
 
