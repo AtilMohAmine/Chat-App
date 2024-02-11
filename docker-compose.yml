@@ -1,19 +1,40 @@
 version: '3'
 
 services:
+
+  mongodb:
+    image: mongo:latest
+    restart: unless-stopped
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=$DB_USER
+      - MONGO_INITDB_ROOT_PASSWORD=$DB_PASSWORD
+      - MONGO_INITDB_DATABASE=$DB_NAME
+    ports:
+      - "27017:27017"
+    volumes:
+      - db:/data/db
+
   chat-server:
     build: ./server
+    restart: unless-stopped
     env_file: ./server/.env
+    environment:
+      - DATABASE_URI=mongodb://${DB_USER}:${DB_PASSWORD}@mongodb:27017/${DB_NAME}?authSource=admin
     ports:
       - "5000:5000"
+    depends_on:
+      - mongodb
     
-
   chat-client:
     build: ./client
+    restart: unless-stopped
     env_file: ./client/.env
     environment:
-      REACT_APP_SERVER_URL: http://chat-server:5000
+      - REACT_APP_SERVER_URL=http://chat-server:5000
     ports:
       - "3000:3000"
     depends_on:
       - chat-server
+
+volumes:
+  db:
