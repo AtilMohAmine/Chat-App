@@ -9,15 +9,15 @@ import { disableReactDevTools } from '@fvilers/disable-react-devtools'
 
 if (process.env.NODE_ENV === 'production') disableReactDevTools()
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const root = ReactDOM.hydrateRoot(document.getElementById('root'));
 root.render(
-  <AuthProvider>
-    <SocketProvider>
-      <Router>
+  <Router>
+    <AuthProvider>
+      <SocketProvider>
         <Routes>
           <Route path="/*" element={<App />} />
         </Routes>
-      </Router>
-    </SocketProvider>
-  </AuthProvider>
+      </SocketProvider>
+    </AuthProvider>
+  </Router>
 );
