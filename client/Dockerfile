@@ -17,4 +17,4 @@ COPY . .
 EXPOSE 3000
 
 # Command to run the client
-CMD ["npm", "start"]
+CMD ["npm", "run", "ssr"]
