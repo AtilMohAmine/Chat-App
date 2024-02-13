@@ -20,6 +20,7 @@ services:
     env_file: ./server/.env
     environment:
       - DATABASE_URI=mongodb://${DB_USER}:${DB_PASSWORD}@mongodb:27017/${DB_NAME}?authSource=admin
+      - CLIENT_URL=chat-client:3000
     ports:
       - "5000:5000"
     depends_on:

@@ -1,5 +1,8 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 const allowedOrigins = [
-    'https://chat-app-fj7r.onrender.com',
+    process.env.CLIENT_URL,
     'http://localhost:3000'
 ];
 

@@ -20,7 +20,7 @@ connectDB()
 
 const io = new Server(expressServer, {
   cors: {
-    origin: process.env.NODE_ENV === "production" ? allowedOrigins : ["http://localhost:3000", "http://192.168.1.9:3000"]
+    origin: allowedOrigins
   },
   maxHttpBufferSize: 1e8 // 100 MB
 });
