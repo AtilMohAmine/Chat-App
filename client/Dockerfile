@@ -20,4 +20,4 @@ RUN chmod +x set_server_url.sh
 EXPOSE 3000
 
 # Set REACT_APP_SERVER_URL using the script if the environment variable is set
-ENTRYPOINT ["/bin/bash", "-c", "if [ \"$SET_SERVER_URL\" = \"true\" ]; then ./set_server_url.sh; fi && exec npm run ssr"]
+ENTRYPOINT ["/bin/bash", "-c", "if [ \"$SET_SERVER_URL\" = \"true\" ]; then ./set_server_url.sh; fi && exec npm start"]
