@@ -8,9 +8,9 @@ import { SocketProvider } from './context/SocketProvider';
 import { disableReactDevTools } from '@fvilers/disable-react-devtools'
 
 if (process.env.NODE_ENV === 'production') disableReactDevTools()
+const isSSR = process.env.REACT_APP_SSR === 'true';
 
-const root = ReactDOM.hydrateRoot(document.getElementById('root'));
-root.render(
+const appElement = (
   <Router>
     <AuthProvider>
       <SocketProvider>
@@ -21,3 +21,11 @@ root.render(
     </AuthProvider>
   </Router>
 );
+
+if (isSSR) {
+  ReactDOM.hydrateRoot(document.getElementById('root'), appElement);
+}
+else {
+  const root = ReactDOM.createRoot(document.getElementById("root"));
+  root.render(appElement);
+}
