@@ -213,6 +213,24 @@ Once the containers are running, you can access your application at the followin
  - Server: http://localhost:3001
  - Client: http://localhost:3000
 
+## Docker Compose
+
+Create a `.env` file in the server directory with the following environment variables:
+
+```env
+DB_USER=your_mongodb_username
+DB_PASSWORD=your_mongodb_password
+DB_NAME=your_mongodb_database_name
+```
+
+Run the following command to start the services defined in the docker-compose.yml file:
+
+```bash
+docker-compose up -d
+```
+
+Once the services are up and running, you can access the chat application at http://localhost:3000 in your web browser.
+
 ## Screenshots
 
 Here are some screenshots showcasing the Chat App:
