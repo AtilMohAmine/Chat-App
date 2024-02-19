@@ -37,23 +37,23 @@ Below is the architecture diagram illustrating the components and flow of the Ch
 Clone the repository:
 
 ```bash
-git clone https://github.com/AtilMohAmine/Chat-App.git
+$ git clone https://github.com/AtilMohAmine/Chat-App.git
 ```
 
 Navigate to the project directory:
 
 ```bach
-cd chat-app
+$ cd chat-app
 ```
 
 Install dependencies for both the server and client:
 
 ```bach
-cd chat-app/server
-npm install
+$ cd chat-app/server
+$ npm install
 
-cd ../client
-npm install
+$ cd ../client
+$ npm install
 ```
 
 ## Configuration
@@ -132,10 +132,10 @@ Start the server and client:
 
 ```bach
 # In the server directory
-npm start
+$ npm start
 
 # In the client directory
-npm start
+$ npm start
 ```
 
 This will run the server on the specified port and the client on its respective port.
@@ -176,8 +176,8 @@ ENV REACT_APP_SERVER_URL=your_server_url
 To build Docker images for both the server and client applications, navigate to the respective directories (server and client) and run:
 
 ```bash
-    docker build -t chat-server ./server
-    docker build -t chat-client ./client
+$ docker build -t chat-server ./server
+$ docker build -t chat-client ./client
 ```
 
 Replace chat-server and chat-client with your desired image names.
@@ -189,14 +189,13 @@ After building the Docker images, you can run Docker containers for the server a
 Server Container
 
 ```bash
-    docker run -d -p 3001:3001 --name chat-server chat-server
+$ docker run -d -p 3001:3001 --name chat-server chat-server
 ```
 
 Client Container
 
 ```bash
-    docker run -d -p 3000:3000 --name chat-client chat-client
-
+$ docker run -d -p 3000:3000 --name chat-client chat-client
 ```
 
 Replace chat-server and chat-client with your image names, and adjust the port mappings (`-p`) as needed.
@@ -226,7 +225,7 @@ DB_NAME=your_mongodb_database_name
 Run the following command to start the services defined in the docker-compose.yml file:
 
 ```bash
-docker-compose up -d
+$ docker-compose up -d
 ```
 
 Once the services are up and running, you can access the chat application at http://localhost:3000 in your web browser.
